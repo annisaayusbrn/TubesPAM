@@ -10,36 +10,36 @@ import {
 import { Card } from 'react-native-elements';
 import { useSelector, useDispatch } from 'react-redux';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { getNews } from '../store/actions/newsAction';
-import { addBookmark } from '../store/actions/bookmarkAction';
 
-const HomeScreen = () => {
+import { getBookmark, deleteBookmark } from '../store/actions/bookmarkAction';
+
+const BookmarksScreen = () => {
   const dispatch = useDispatch();
-  const { user } = useSelector((state) => state.auth);
-  const { news } = useSelector((state) => state.news);
   const [refreshing, setRefreshing] = useState(false);
+  const { user } = useSelector((state) => state.auth);
+  const { bookmarks } = useSelector((state) => state.bookmark);
 
   useEffect(() => {
-    const listNews = async () => {
-      await dispatch(getNews());
+    const listBookmarks = async () => {
+      await dispatch(getBookmark({ user_id: user.id }));
     };
-    listNews();
+    listBookmarks();
   }, []);
 
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
     try {
-      await dispatch(getNews());
+      await dispatch(getBookmark({ user_id: user.id }));
       setRefreshing(false);
     } catch (error) {
       console.error(error);
     }
   }, [refreshing]);
 
-  const handleAddBookmark = async (news_id) => {
+  const handleDeleteBookmark = async (id) => {
     try {
       const user_id = user.id;
-      const res = await dispatch(addBookmark({ user_id, news_id }));
+      const res = await dispatch(deleteBookmark({ user_id, id }));
       if (res.error) {
         return Alert.alert('Error', res.message);
       } else {
@@ -53,20 +53,19 @@ const HomeScreen = () => {
       console.log(err);
     }
   };
-
   return (
     <SafeAreaView style={{ flex: 1 }}>
       <View style={{ flex: 1 }}>
         <View style={{ margin: 20 }}>
-          <Text style={{ fontSize: 30 }}>Berita</Text>
+          <Text style={{ fontSize: 30 }}>Bookmark</Text>
         </View>
         <ScrollView
           refreshControl={
             <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
           }
         >
-          {news && news.length > 0 ? (
-            news.map((data) => {
+          {bookmarks && bookmarks.length > 0 ? (
+            bookmarks.map((data) => {
               return (
                 <Card key={data.id}>
                   <Card.Title>{data.title}</Card.Title>
@@ -76,8 +75,8 @@ const HomeScreen = () => {
                   </Text>
                   <View style={{ marginTop: 10 }}>
                     <Button
-                      onPress={() => handleAddBookmark(data.id)}
-                      title="Tambah Bookmark"
+                      onPress={() => handleDeleteBookmark(data.id)}
+                      title="Hapus Bookmark"
                     ></Button>
                   </View>
                 </Card>
@@ -85,7 +84,7 @@ const HomeScreen = () => {
             })
           ) : (
             <View style={{ margin: 20 }}>
-              <Text>Berita tidak ada</Text>
+              <Text>Bookmark tidak ada</Text>
             </View>
           )}
         </ScrollView>
@@ -94,4 +93,4 @@ const HomeScreen = () => {
   );
 };
 
-export default HomeScreen;
+export default BookmarksScreen;

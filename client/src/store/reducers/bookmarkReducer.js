@@ -1,23 +1,22 @@
 const initialState = {
-  user: {},
+  bookmarks: [],
   error: '',
   loading: true,
 };
 
-const authReducer = (state = initialState, action) => {
+const bookmarkReducer = (state = initialState, action) => {
   const { type, payload } = action;
 
   switch (type) {
-    case 'LOGIN':
+    case 'BOOKMARK_LIST':
       return {
         ...state,
-        user: payload,
+        bookmarks: payload,
+        loading: false,
       };
-    case 'LOGOUT':
-      return initialState;
     default:
       return state;
   }
 };
 
-export default authReducer;
+export default bookmarkReducer;
